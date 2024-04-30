@@ -198,7 +198,7 @@ private:
             e->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INVALID_OFFSET;
             return;
         }
-
+        /*
         if (e->len != 5) {
             printf("Error invalid len\r\n");
             e->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATT_VAL_LENGTH;
@@ -209,6 +209,14 @@ private:
             ((e->data[0] >= 24) && (e->handle == _hour_char.getValueHandle()))) {
             printf("Error invalid data\r\n");
             e->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_WRITE_NOT_PERMITTED;
+            return;
+        }*/
+
+        if (((e->len != _hour_char.numelements) && (e->handle == _hour_char.getValueHandle())) || 
+        ((e->len != _minute_char.numelements) && (e->handle == _minute_char.getValueHandle())) ||
+        ((e->len != _second_char.numelements) && (e->handle == _second_char.getValueHandle()))) {
+            printf("Error invalid len\r\n");
+            e->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATT_VAL_LENGTH;
             return;
         }
 
@@ -327,6 +335,7 @@ private:
                 /* Num descriptors */ numDescriptors
             )
             {
+                numelements = NUM_ELEMENTS;
         }
 
         /**
@@ -358,6 +367,8 @@ private:
             return server.write(getValueHandle(), value, sizeof(T) * NUM_ELEMENTS, local_only); // &value?
         }
 
+        unsigned int numelements;
+
     private:
         uint8_t _value;
     };
@@ -369,13 +380,13 @@ private:
     GattService _clock_service;
     GattCharacteristic* _clock_characteristics[3];
 
-    ReadWriteNotifyIndicateCharacteristic<uint8_t,5> _hour_char;
-    ReadWriteNotifyIndicateCharacteristic<uint8_t,5> _minute_char;
-    ReadWriteNotifyIndicateCharacteristic<uint8_t,5> _second_char;
+    ReadWriteNotifyIndicateCharacteristic<uint8_t,10> _hour_char;
+    ReadWriteNotifyIndicateCharacteristic<uint8_t,10> _minute_char;
+    ReadWriteNotifyIndicateCharacteristic<uint8_t,10> _second_char;
 
-    uint8_t second [5] = {0,0,0,0,0}; // needed in the increment_second function
-    uint8_t minute [5] = {0,0,0,0,0}; // needed in the increment_second function
-    uint8_t hour [5] = {0,0,0,0,0}; // needed in the increment_second function
+    uint8_t hour [10] = {0,0,0,0,0,0,0,0,0,0}; ; // needed in the increment_hour function
+    uint8_t minute [10] = {0,0,0,0,0,0,0,0,0,0}; ; // needed in the increment_minute function
+    uint8_t second [10] = {0,0,0,0,0,0,0,0,0,0}; // needed in the increment_second function
 
 };
 
