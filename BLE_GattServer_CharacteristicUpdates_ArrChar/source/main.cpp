@@ -103,10 +103,19 @@ private:
         printf("attribute handle: %u", params.handle);
         if (params.handle == _hour_char.getValueHandle()) {
             printf(" (hour characteristic)\r\n");
+            for (size_t i = 0; i < params.len; ++i) {
+                hour[i] = params.data[i];
+            }
         } else if (params.handle == _minute_char.getValueHandle()) {
             printf(" (minute characteristic)\r\n");
+            for (size_t i = 0; i < params.len; ++i) {
+                minute[i] = params.data[i];
+            }
         } else if (params.handle == _second_char.getValueHandle()) {
             printf(" (second characteristic)\r\n");
+            for (size_t i = 0; i < params.len; ++i) {
+                second[i] = params.data[i];
+            }
         } else {
             printf("\r\n");
         }
@@ -343,10 +352,10 @@ private:
          * @param[in] local_only Flag that determine if the change should be kept
          * locally or forwarded to subscribed clients.
          */
-        ble_error_t set(GattServer &server, const uint8_t value[], bool local_only = false) const
+        ble_error_t set(GattServer &server, const uint8_t value[], bool local_only = false) const // &value?
         {
             printf("set value: %u %u %u %u %u\r\n", value[0], value[1], value[2], value[3], value[4]);
-            return server.write(getValueHandle(), value, sizeof(T) * NUM_ELEMENTS, local_only);
+            return server.write(getValueHandle(), value, sizeof(T) * NUM_ELEMENTS, local_only); // &value?
         }
 
     private:
