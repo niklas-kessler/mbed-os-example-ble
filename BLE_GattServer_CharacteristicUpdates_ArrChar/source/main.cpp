@@ -37,8 +37,8 @@ using namespace std::literals::chrono_literals;
 class ClockService : public ble::GattServer::EventHandler {
 public:
     ClockService() :
-        _hour_char("485f4145-52b9-4644-af1f-7a6b9322490f", 0),
-        _minute_char("0a924ca7-87cd-4699-a3bd-abdcd9cf126a", 0),
+        //_hour_char("485f4145-52b9-4644-af1f-7a6b9322490f", 0),
+        //_minute_char("0a924ca7-87cd-4699-a3bd-abdcd9cf126a", 0),
         _second_char("8dd6a1b7-bc75-4741-8a26-264af75807de", 0),
         _clock_service(
             /* uuid */ "51311102-030e-485f-b122-f8f381aa84ed",
@@ -48,13 +48,13 @@ public:
         )
     {
         /* update internal pointers (value, descriptors and characteristics array) */
-        _clock_characteristics[0] = &_hour_char;
-        _clock_characteristics[1] = &_minute_char;
-        _clock_characteristics[2] = &_second_char;
+        //_clock_characteristics[0] = &_hour_char;
+        //_clock_characteristics[1] = &_minute_char;
+        _clock_characteristics[0] = &_second_char;
 
         /* setup authorization handlers */
-        _hour_char.setWriteAuthorizationCallback(this, &ClockService::authorize_client_write);
-        _minute_char.setWriteAuthorizationCallback(this, &ClockService::authorize_client_write);
+        //_hour_char.setWriteAuthorizationCallback(this, &ClockService::authorize_client_write);
+        //_minute_char.setWriteAuthorizationCallback(this, &ClockService::authorize_client_write);
         _second_char.setWriteAuthorizationCallback(this, &ClockService::authorize_client_write);
     }
 
@@ -76,8 +76,8 @@ public:
 
         printf("clock service registered\r\n");
         printf("service handle: %u\r\n", _clock_service.getHandle());
-        printf("hour characteristic value handle %u\r\n", _hour_char.getValueHandle());
-        printf("minute characteristic value handle %u\r\n", _minute_char.getValueHandle());
+        //printf("hour characteristic value handle %u\r\n", _hour_char.getValueHandle());
+        //printf("minute characteristic value handle %u\r\n", _minute_char.getValueHandle());
         printf("second characteristic value handle %u\r\n", _second_char.getValueHandle());
 
         _event_queue->call_every(1000ms, callback(this, &ClockService::increment_second));
@@ -101,7 +101,7 @@ private:
         printf("data written:\r\n");
         printf("connection handle: %u\r\n", params.connHandle);
         printf("attribute handle: %u", params.handle);
-        if (params.handle == _hour_char.getValueHandle()) {
+        /**if (params.handle == _hour_char.getValueHandle()) {
             printf(" (hour characteristic)\r\n");
             for (size_t i = 0; i < params.len; ++i) {
                 hour[i] = params.data[i];
@@ -111,7 +111,7 @@ private:
             for (size_t i = 0; i < params.len; ++i) {
                 minute[i] = params.data[i];
             }
-        } else if (params.handle == _second_char.getValueHandle()) {
+        } else*/ if (params.handle == _second_char.getValueHandle()) {
             printf(" (second characteristic)\r\n");
             for (size_t i = 0; i < params.len; ++i) {
                 second[i] = params.data[i];
@@ -139,11 +139,11 @@ private:
         printf("data read:\r\n");
         printf("connection handle: %u\r\n", params.connHandle);
         printf("attribute handle: %u", params.handle);
-        if (params.handle == _hour_char.getValueHandle()) {
+        /*if (params.handle == _hour_char.getValueHandle()) {
             printf(" (hour characteristic)\r\n");
         } else if (params.handle == _minute_char.getValueHandle()) {
             printf(" (minute characteristic)\r\n");
-        } else if (params.handle == _second_char.getValueHandle()) {
+        } else*/ if (params.handle == _second_char.getValueHandle()) {
             printf(" (second characteristic)\r\n");
         } else {
             printf("\r\n");
@@ -212,11 +212,12 @@ private:
             return;
         }*/
 
-        if (((e->len != _hour_char.numelements) && (e->handle == _hour_char.getValueHandle())) || 
-        ((e->len != _minute_char.numelements) && (e->handle == _minute_char.getValueHandle())) ||
+        if (/*((e->len != _hour_char.numelements) && (e->handle == _hour_char.getValueHandle())) || 
+        ((e->len != _minute_char.numelements) && (e->handle == _minute_char.getValueHandle())) ||*/
         ((e->len != _second_char.numelements) && (e->handle == _second_char.getValueHandle()))) {
             printf("Error invalid len\r\n");
-            printf("required: %d, %d or %d, got %d\r\n",  _hour_char.numelements, _minute_char.numelements, _second_char.numelements, e->len);
+            //printf("required: %d, %d or %d, got %d\r\n",  _hour_char.numelements, _minute_char.numelements, _second_char.numelements, e->len);
+            printf("required: %d got %d\r\n",  _second_char.numelements, e->len);
             e->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATT_VAL_LENGTH;
             return;
         }
@@ -235,7 +236,7 @@ private:
             return;
         }
 
-        printf("second: %u %u %u %u %u\r\n", second[0], second[1], second[2], second[3], second[4]);
+        //printf("second: %u %u %u %u %u\r\n", second[0], second[1], second[2], second[3], second[4]);
 
         second[0] = (second[0]  + 1) % 60;
         second[1] = (second[1]  + 2) % 60;
@@ -243,7 +244,7 @@ private:
         second[3] = (second[3]  + 4) % 60;
         second[4] = (second[4]  + 5) % 60;
 
-        printf("second after update: %u %u %u %u %u\r\n", second[0], second[1], second[2], second[3], second[4]);
+        //printf("second after update: %u %u %u %u %u\r\n", second[0], second[1], second[2], second[3], second[4]);
 
         err = _second_char.set(*_server, second);
         if (err) {
@@ -251,15 +252,15 @@ private:
             return;
         }
 
-        if (second[0] == 0) {
+        /*if (second[0] == 0) {
             increment_minute();
-        }
+        }*/
     }
 
     /**
      * Increment the minute counter.
      */
-    void increment_minute(void)
+/*    void increment_minute(void)
     {
         ble_error_t err = _minute_char.get(*_server, *minute);
         if (err) {
@@ -278,12 +279,12 @@ private:
         if (minute[0] == 0) {
             increment_hour();
         }
-    }
+    }*/
 
     /**
      * Increment the hour counter.
      */
-    void increment_hour(void)
+/*    void increment_hour(void)
     {
         ble_error_t err = _hour_char.get(*_server, *hour);
         if (err) {
@@ -298,7 +299,7 @@ private:
             printf("write of the hour value returned error %u\r\n", err);
             return;
         }
-    }
+    }*/
 
 private:
     /**
@@ -364,7 +365,7 @@ private:
          */
         ble_error_t set(GattServer &server, const uint8_t value[], bool local_only = false) const // &value?
         {
-            printf("set value: %u %u %u %u %u\r\n", value[0], value[1], value[2], value[3], value[4]);
+            printf("set value: %u %u %u %u %u ...\r\n", value[0], value[1], value[2], value[3], value[4]);
             return server.write(getValueHandle(), value, sizeof(T) * NUM_ELEMENTS, local_only); // &value?
         }
 
@@ -379,15 +380,15 @@ private:
     events::EventQueue *_event_queue = nullptr;
 
     GattService _clock_service;
-    GattCharacteristic* _clock_characteristics[3];
+    GattCharacteristic* _clock_characteristics[1];
 
-    ReadWriteNotifyIndicateCharacteristic<uint8_t,23> _hour_char;
-    ReadWriteNotifyIndicateCharacteristic<uint8_t,23> _minute_char;
-    ReadWriteNotifyIndicateCharacteristic<uint8_t,23> _second_char;
+    //ReadWriteNotifyIndicateCharacteristic<uint8_t,23> _hour_char;
+    //ReadWriteNotifyIndicateCharacteristic<uint8_t,23> _minute_char;
+    ReadWriteNotifyIndicateCharacteristic<uint8_t,65> _second_char;
 
-    uint8_t hour [23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // needed in the increment_hour function
-    uint8_t minute [23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // needed in the increment_minute function
-    uint8_t second [23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // needed in the increment_second function
+    //uint8_t hour [23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // needed in the increment_hour function
+    //uint8_t minute [23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // needed in the increment_minute function
+    uint8_t second [65] = {0};
 
 };
 
