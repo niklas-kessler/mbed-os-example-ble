@@ -216,6 +216,7 @@ private:
         ((e->len != _minute_char.numelements) && (e->handle == _minute_char.getValueHandle())) ||
         ((e->len != _second_char.numelements) && (e->handle == _second_char.getValueHandle()))) {
             printf("Error invalid len\r\n");
+            printf("required: %d, %d or %d, got %d\r\n",  _hour_char.numelements, _minute_char.numelements, _second_char.numelements, e->len);
             e->authorizationReply = AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATT_VAL_LENGTH;
             return;
         }
@@ -380,13 +381,13 @@ private:
     GattService _clock_service;
     GattCharacteristic* _clock_characteristics[3];
 
-    ReadWriteNotifyIndicateCharacteristic<uint8_t,10> _hour_char;
-    ReadWriteNotifyIndicateCharacteristic<uint8_t,10> _minute_char;
-    ReadWriteNotifyIndicateCharacteristic<uint8_t,10> _second_char;
+    ReadWriteNotifyIndicateCharacteristic<uint8_t,23> _hour_char;
+    ReadWriteNotifyIndicateCharacteristic<uint8_t,23> _minute_char;
+    ReadWriteNotifyIndicateCharacteristic<uint8_t,23> _second_char;
 
-    uint8_t hour [10] = {0,0,0,0,0,0,0,0,0,0}; ; // needed in the increment_hour function
-    uint8_t minute [10] = {0,0,0,0,0,0,0,0,0,0}; ; // needed in the increment_minute function
-    uint8_t second [10] = {0,0,0,0,0,0,0,0,0,0}; // needed in the increment_second function
+    uint8_t hour [23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // needed in the increment_hour function
+    uint8_t minute [23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // needed in the increment_minute function
+    uint8_t second [23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // needed in the increment_second function
 
 };
 
