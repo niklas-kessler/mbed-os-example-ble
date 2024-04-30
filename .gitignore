@@ -44,3 +44,15 @@ BUILD/
 cmake_build/
 .mbedls*
 
+# custom
+Notes.txt
+BLE_GattServer_CharacteristicUpdates_ArrChar/.mbed
+BLE_GattServer_CharacteristicUpdates/.mbed
+BLE_GattClient_CharacteristicWrite/.mbed
+BLE_GattClient_CharacteristicUpdates/.mbed
+BLE_GattServer_CharacteristicUpdates_ArrChar/CMakeLists.txt
+BLE_GattServer_CharacteristicUpdates_ArrChar/mbed_app.json
+BLE_GattServer_CharacteristicWrite/.mbed
+GattServerAndGattClient/.mbed
+GattServerAndGattClient/CMakeLists.txt
+GattServerAndGattClient/mbed_app.json

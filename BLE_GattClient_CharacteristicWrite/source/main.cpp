@@ -36,93 +36,93 @@ class GattClientDemo : public ble::Gap::EventHandler {
     friend void on_read(const GattReadCallbackParams *response);
     friend void on_write(const GattWriteCallbackParams *response);
 
-public:
-    static GattClientDemo &get_instance() {
-        static GattClientDemo instance;
-        return instance;
-    }
+    public:
+        static GattClientDemo &get_instance() {
+            static GattClientDemo instance;
+            return instance;
+        }
 
-    void start() {
-        _ble_app.add_gap_event_handler(this);
-        _ble_app.set_target_name("GattServer");
+        void start() {
+            _ble_app.add_gap_event_handler(this);
+            _ble_app.set_target_name("GattServer");
 
-        /* once it's done it will let us continue with our demo by calling on_init */
-        _ble_app.start(callback(this, &GattClientDemo::on_init));
-        /* the above function does not return until we call _ble_app.stop() somewhere else */
-    }
+            /* once it's done it will let us continue with our demo by calling on_init */
+            _ble_app.start(callback(this, &GattClientDemo::on_init));
+            /* the above function does not return until we call _ble_app.stop() somewhere else */
+        }
 
-private:
-    /** Callback triggered when the ble initialization process has finished */
-    void on_init(BLE &ble, events::EventQueue &event_queue) {
-        _ble = &ble;
-        _event_queue = &event_queue;
-        _ble->gattClient().onDataRead(::on_read);
-        _ble->gattClient().onDataWritten(::on_write);
-    }
+    private:
+        /** Callback triggered when the ble initialization process has finished */
+        void on_init(BLE &ble, events::EventQueue &event_queue) {
+            _ble = &ble;
+            _event_queue = &event_queue;
+            _ble->gattClient().onDataRead(::on_read);
+            _ble->gattClient().onDataWritten(::on_write);
+        }
 
-    void onConnectionComplete(const ble::ConnectionCompleteEvent &event) {
-        printf("We are looking for a service with UUID 0xA000\r\n");
-        printf("And a characteristic with UUID 0xA001\r\n");
+        void onConnectionComplete(const ble::ConnectionCompleteEvent &event) {
+            printf("We are looking for a service with UUID 0xA000\r\n");
+            printf("And a characteristic with UUID 0xA001\r\n");
 
-        _ble->gattClient().onServiceDiscoveryTermination(::discovery_termination);
-        _ble->gattClient().launchServiceDiscovery(
-            event.getConnectionHandle(),
-            ::service_discovery,
-            ::characteristic_discovery,
-            EXAMPLE_SERVICE_UUID,
-            WRITABLE_CHARACTERISTIC_UUID
-        );
-    }
+            _ble->gattClient().onServiceDiscoveryTermination(::discovery_termination);
+            _ble->gattClient().launchServiceDiscovery(
+                event.getConnectionHandle(),
+                ::service_discovery,
+                ::characteristic_discovery,
+                EXAMPLE_SERVICE_UUID,
+                WRITABLE_CHARACTERISTIC_UUID
+            );
+        }
 
-private:
-    void service_discovery(const DiscoveredService *service) {
-        if (service->getUUID().shortOrLong() == UUID::UUID_TYPE_SHORT) {
-            if (service->getUUID().getShortUUID() == EXAMPLE_SERVICE_UUID) {
-                printf("We found the service we were looking for\r\n");
+    private:
+        void service_discovery(const DiscoveredService *service) {
+            if (service->getUUID().shortOrLong() == UUID::UUID_TYPE_SHORT) {
+                if (service->getUUID().getShortUUID() == EXAMPLE_SERVICE_UUID) {
+                    printf("We found the service we were looking for\r\n");
+                }
             }
         }
-    }
 
-    void characteristic_discovery(const DiscoveredCharacteristic *characteristic) {
-        if (characteristic->getUUID().getShortUUID() == WRITABLE_CHARACTERISTIC_UUID) {
-            printf("We found the characteristic we were looking for\r\n");
-            writable_characteristic = *characteristic;
-            writable_characteristic_found = true;
+        void characteristic_discovery(const DiscoveredCharacteristic *characteristic) {
+            if (characteristic->getUUID().getShortUUID() == WRITABLE_CHARACTERISTIC_UUID) {
+                printf("We found the characteristic we were looking for\r\n");
+                writable_characteristic = *characteristic;
+                writable_characteristic_found = true;
+            }
         }
-    }
 
-    void discovery_termination(ble::connection_handle_t connectionHandle) {
-        if (writable_characteristic_found) {
-            writable_characteristic_found = false;
-            _event_queue->call([this]{ writable_characteristic.read(); });
+        void discovery_termination(ble::connection_handle_t connectionHandle) {
+            if (writable_characteristic_found) {
+                writable_characteristic_found = false;
+                _event_queue->call([this]{ writable_characteristic.read(); });
+            }
         }
-    }
 
-    void on_read(const GattReadCallbackParams *response) {
-        if (response->handle == writable_characteristic.getValueHandle()) {
-            /* increment the value we just read */
-            uint8_t value = response->data[0];
-            value++;
+        void on_read(const GattReadCallbackParams *response) {
+            if (response->handle == writable_characteristic.getValueHandle()) {
+                /* increment the value we just read */
+                uint8_t value = response->data[0];
+                value++;
 
-            /* and write it back */
-            writable_characteristic.write(1, &value);
+                /* and write it back */
+                writable_characteristic.write(1, &value);
 
-            printf("Written new value of %x\r\n", value);
+                printf("Written new value of %x\r\n", value);
+            }
         }
-    }
 
-    void on_write(const GattWriteCallbackParams *response) {
-        if (response->handle == writable_characteristic.getValueHandle()) {
-            /* this concludes the example, we stop the app running the ble process in the background */
-            _ble_app.stop();
+        void on_write(const GattWriteCallbackParams *response) {
+            if (response->handle == writable_characteristic.getValueHandle()) {
+                /* this concludes the example, we stop the app running the ble process in the background */
+                _ble_app.stop();
+            }
         }
-    }
 
-private:
-    GattClientDemo() {};
-    ~GattClientDemo() {};
+    private:
+        GattClientDemo() {};
+        ~GattClientDemo() {};
 
-private:
+    private:
     /** Simplified BLE application that automatically advertises and scans. It will
      * initialise BLE and run the event queue */
     BLEApp _ble_app;
