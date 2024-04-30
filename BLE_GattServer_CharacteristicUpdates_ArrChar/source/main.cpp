@@ -384,11 +384,11 @@ private:
 
     //ReadWriteNotifyIndicateCharacteristic<uint8_t,23> _hour_char;
     //ReadWriteNotifyIndicateCharacteristic<uint8_t,23> _minute_char;
-    ReadWriteNotifyIndicateCharacteristic<uint8_t,65> _second_char;
+    ReadWriteNotifyIndicateCharacteristic<uint8_t,505> _second_char;
 
     //uint8_t hour [23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // needed in the increment_hour function
     //uint8_t minute [23] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // needed in the increment_minute function
-    uint8_t second [65] = {0};
+    uint8_t second [505] = {0};
 
 };
 
